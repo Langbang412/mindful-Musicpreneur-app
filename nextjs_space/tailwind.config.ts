@@ -60,6 +60,30 @@ const config: Config = {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        // Brand Colors
+        brand: {
+          plum: '#4A1942',
+          teal: '#008B8B',
+          coral: '#FF6F61',
+          cream: '#F5F5DC',
+          charcoal: '#333333',
+          red: '#ff3131',
+          blue: '#f371ff',
+          tan: '#c69434',
+          green: '#697b2f',
+          purple: '#bc13fe',
+          yellow: '#dfff00',
+          turquoise: '#50dfc4',
+        },
+      },
+      fontFamily: {
+        // Brand Fonts
+        horizon: ['var(--font-horizon)', 'sans-serif'],
+        lucidity: ['var(--font-lucidity)', 'sans-serif'],
+        playfair: ['Playfair Display', 'serif'],
+        playfairSc: ['Playfair Display SC', 'serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        raleway: ['Raleway', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

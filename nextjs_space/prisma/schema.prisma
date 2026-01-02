@@ -7,3 +7,210 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  firstName     String
+  lastName      String?
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Product access
+  ownsGuide     Boolean   @default(false)
+  ownsPlanner   Boolean   @default(false)
+  ownsFreebie   Boolean   @default(false)
+  
+  // Collective membership
+  isCollectiveMember        Boolean   @default(false)
+  collectiveApprovedAt      DateTime?
+  collectiveMembershipType  String?   // 'monthly', 'yearly', or null
+  collectiveStripeSubscriptionId String?
+  
+  // Email preferences
+  subscribed    Boolean   @default(true)
+  unsubscribedAt DateTime?
+  
+  // Relations
+  orders        Order[]
+  applications  CollectiveApplication[]
+  pdfDownloads  PDFDownload[]
+  accounts      Account[]
+  sessions      Session[]
+  
+  @@index([email])
+  @@index([isCollectiveMember])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  
+  @@unique([identifier, token])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  price       Float
+  currency    String   @default("usd")
+  type        String   // 'guide', 'planner', 'bogo', 'freebie', 'collective_monthly', 'collective_yearly'
+  stripePriceId String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  orderItems  OrderItem[]
+  
+  @@index([slug])
+  @@index([type])
+}
+
+model Order {
+  id                    String   @id @default(cuid())
+  userId                String
+  status                String   @default("pending") // 'pending', 'completed', 'failed', 'refunded'
+  totalAmount           Float
+  currency              String   @default("usd")
+  paymentIntentId       String?
+  stripeSessionId       String?
+  paymentMethod         String?  // 'stripe', 'paypal'
+  
+  // BOGO specific
+  isBogoOrder           Boolean  @default(false)
+  recipientEmail        String?
+  recipientFirstName    String?
+  recipientUserId       String?  // Created after purchase
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  completedAt           DateTime?
+  
+  user                  User     @relation(fields: [userId], references: [id])
+  orderItems            OrderItem[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([stripeSessionId])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int      @default(1)
+  price     Float
+  
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+model CollectiveApplication {
+  id                String   @id @default(cuid())
+  userId            String
+  status            String   @default("pending") // 'pending', 'approved', 'denied'
+  
+  // Application questions
+  whyJoin           String   @db.Text
+  musicGoals        String   @db.Text
+  guideImpact       String   @db.Text
+  communityHopes    String   @db.Text
+  currentStage      String   @db.Text
+  additionalInfo    String?  @db.Text
+  
+  // Admin notes
+  adminNotes        String?  @db.Text
+  denialMessage     String?  @db.Text
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  reviewedAt        DateTime?
+  reviewedBy        String?  // Admin user ID
+  
+  user              User     @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model EmailSubscriber {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  firstName     String
+  source        String   // 'freebie', 'guide', 'planner', 'bogo', 'collective'
+  subscribed    Boolean  @default(true)
+  subscribedAt  DateTime @default(now())
+  unsubscribedAt DateTime?
+  
+  @@index([email])
+  @@index([subscribed])
+}
+
+model PDFDownload {
+  id          String   @id @default(cuid())
+  userId      String
+  productType String   // 'guide', 'planner', 'freebie'
+  downloadUrl String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([productType])
+}
+
+model PortalContent {
+  id          String   @id @default(cuid())
+  key         String   @unique // 'zoom_url', 'welcome_message', 'substack_url', etc.
+  value       String   @db.Text
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?  // Admin user ID
+}
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}

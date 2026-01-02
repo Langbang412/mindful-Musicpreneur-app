@@ -1,14 +1,25 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
- 
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const remainingSeconds = seconds % 60
+export function formatPrice(amount: number, currency: string = 'USD') {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount)
+}
 
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+export function formatDate(date: Date | string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(date))
+}
+
+export function generateDownloadToken() {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
