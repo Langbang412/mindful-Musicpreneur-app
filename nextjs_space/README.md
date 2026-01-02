@@ -363,3 +363,100 @@ Copyright © 2026 The Mindful Musicpreneur®. All rights reserved.
 ---
 
 **Built with ♥ for female+ musicians everywhere.**
+
+
+
+---
+
+## 🔧 Admin Dashboard
+
+The platform includes a comprehensive admin dashboard for complete platform management.
+
+### Access
+
+Navigate to `/admin` and log in with an admin account. Admin access is controlled in `lib/admin.ts`.
+
+### Features
+
+#### **1. Main Dashboard** (`/admin`)
+- Key metrics overview (revenue, users, members, applications)
+- Quick action buttons
+- Real-time statistics
+
+#### **2. Orders Management** (`/admin/orders`)
+- View all orders with filters
+- Search by order ID, email, or name
+- Filter by status and product
+- View detailed order information
+- BOGO order tracking
+
+#### **3. User Management** (`/admin/users`)
+- View all registered users
+- Search and filter capabilities
+- Manually grant/revoke product access
+- View user purchase history and activity
+- Manage Collective membership
+
+#### **4. Collective Applications** (`/admin/collective/applications`)
+- Review pending applications
+- Approve with optional welcome message
+- Deny with optional custom message
+- Automatic email notifications
+- Application history tracking
+
+#### **5. Collective Members** (`/admin/collective/members`)
+- View all active members
+- Monitor member activity
+- Revoke portal access
+
+#### **6. Content Management** (`/admin/content`)
+- Upload/replace PDF files (Guide, Planner, Freebie)
+- Update Zoom meeting URL
+- Edit portal welcome message
+- Manage Substack link
+
+#### **7. Email List Management** (`/admin/emails`)
+- View all email subscribers
+- Filter by source and status
+- Export to CSV
+- Track subscription metrics
+
+#### **8. Analytics** (`/admin/analytics`)
+- Revenue tracking with charts
+- Order volume analysis
+- User growth metrics
+- Product revenue breakdown
+- Collective statistics
+- Recent orders list
+
+### Admin Workflows
+
+**Approving Applications:**
+1. Navigate to Collective Applications
+2. Review application details
+3. Click "Approve Application"
+4. Add optional welcome message
+5. System sends email and grants access
+
+**Managing User Access:**
+1. Navigate to User Management
+2. Search for user
+3. Toggle access checkboxes
+4. Changes save automatically
+
+**Content Updates:**
+1. Navigate to Content Management
+2. Upload new PDF or update portal content
+3. Click Save
+4. Changes are immediate
+
+**Export Email List:**
+1. Navigate to Email List Management
+2. Apply filters if needed
+3. Click "Export to CSV"
+4. Download complete list
+
+For detailed admin documentation, see [ADMIN_DASHBOARD_GUIDE.md](./ADMIN_DASHBOARD_GUIDE.md).
+
+---
+
