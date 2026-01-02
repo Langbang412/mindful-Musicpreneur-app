@@ -1,402 +1,365 @@
-# The Mindful Musicpreneur® E-Commerce Application
+# The Mindful Musicpreneur - Full Stack E-Commerce Application
 
-A complete Next.js e-commerce platform for The Mindful Musicpreneur brand, featuring digital product sales, membership management, and a private community portal.
+A comprehensive Next.js 14 e-commerce platform for digital products with integrated payment processing, user authentication, and membership management.
 
-## 🎯 Project Overview
+## 🎯 Overview
 
-This application provides:
-- **E-commerce** for digital products (Guide, Planner, BOGO)
-- **BOGO Gift System** with recipient email collection and dual account creation
-- **Secure PDF Delivery** with authenticated access
-- **Freebie Opt-in** with email capture
-- **The Collective** - Application-based membership community with manual approval
-- **Member Portal** - Gated access for approved Collective members
-- **Admin Dashboard** - Comprehensive management interface
-- **Email System** - Automated transactional emails for all interactions
-- **User Accounts** - Registration, login, and dashboard
-- **Stripe Integration** - Payment processing (test mode ready)
+The Mindful Musicpreneur is a 360° system for female musicians, featuring:
 
-## 🏗️ Tech Stack
+- **Digital Product Sales**: Guide, Planner, BOGO packages
+- **Subscription Management**: The Collective monthly/yearly memberships
+- **User Dashboard**: Secure PDF downloads and account management
+- **Application System**: Curated community access with admin approval
+- **Member Portal**: Gated content for approved members
+- **Email Automation**: Transaction and marketing emails via Resend
+- **Admin Dashboard**: Order, user, and content management
 
-- **Framework:** Next.js 14+ with App Router
-- **Database:** PostgreSQL with Prisma ORM
-- **Authentication:** NextAuth.js
-- **Payments:** Stripe
-- **Email:** Resend
-- **Styling:** Tailwind CSS with brand design system
-- **UI Components:** Radix UI + custom components
+## 🛠 Tech Stack
 
-## 📦 Installation & Setup
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js
+- **Payments**: Stripe Checkout & Webhooks
+- **Email**: Resend
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Deployment**: Vercel (recommended) or any Node.js host
 
-### Prerequisites
+## 📋 Prerequisites
 
 - Node.js 18+ and npm
 - PostgreSQL database
-- Stripe account (test mode)
-- Resend account (or other email service)
+- Stripe account (test mode for development)
+- Resend account for emails
 
-### 1. Install Dependencies
+## 🚀 Quick Start
 
-```bash
-cd /home/ubuntu/mindful_musicpreneur_app/nextjs_space
-npm install --legacy-peer-deps
-```
-
-### 2. Environment Variables
-
-Copy `.env.example` to `.env` and fill in your credentials:
+### 1. Clone and Install
 
 ```bash
-cp .env.example .env
+git clone <repository-url>
+cd mindful_musicpreneur_app/nextjs_space
+npm install
 ```
 
-Required environment variables:
+### 2. Environment Setup
+
+Create `.env` file in the root directory:
 
 ```env
 # Database
-DATABASE_URL="your-postgresql-connection-string"
+DATABASE_URL="postgresql://user:password@localhost:5432/mindful_musicpreneur"
 
 # NextAuth
-NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
+NEXTAUTH_SECRET="your-secret-key-generate-with-openssl"
 NEXTAUTH_URL="http://localhost:3000"
 
-# Stripe (Test Mode)
+# Stripe (Get from https://dashboard.stripe.com/test/apikeys)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 STRIPE_SECRET_KEY="sk_test_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_WEBHOOK_SECRET="whsec_..." # Get after setting up webhook
 
-# Resend Email
+# Resend (Get from https://resend.com/api-keys)
 RESEND_API_KEY="re_..."
 
 # Admin
-ADMIN_EMAIL="your-email@example.com"
+ADMIN_EMAIL="your-admin-email@example.com"
 
-# App URL
+# App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
-### 3. Set Up Database
+**Generate NEXTAUTH_SECRET:**
+```bash
+openssl rand -base64 32
+```
+
+### 3. Database Setup
 
 ```bash
-# Push schema to database
-npx prisma db push
+# Run migrations
+npx prisma migrate dev
 
-# Generate Prisma client
+# Generate Prisma Client
 npx prisma generate
 
-# Seed initial data (products, admin user, portal content)
-npx tsx prisma/seed.ts
+# Seed database with test data
+npm run prisma:seed
 ```
 
-**Default Admin Credentials:**
-- Email: `admin@themindfulmusicpreneur.com`
-- Password: `admin123` (⚠️ **Change this immediately!**)
+This creates:
+- Admin user: Email from ADMIN_EMAIL, Password: `Admin123!`
+- Test user: `test@example.com`, Password: `Test123!`
+- All products (Guide, Planner, BOGO, Freebie, Collective)
+- Sample portal content
 
-### 4. Set Up Stripe Products
+### 4. Upload PDF Files
 
-1. Go to your [Stripe Dashboard](https://dashboard.stripe.com/test/products)
-2. Create products for:
-   - The Mindful Musicpreneur Guide ($60)
-   - The Mindful Muse Quarterly Planner ($15)
-   - BOGO - Buy One, Gift One Guide ($100)
-   - The Collective - Monthly ($47/month recurring)
-   - The Collective - Yearly ($497/year recurring)
-3. Copy the Price IDs and add them to your `.env`:
+Place your PDF files in `/storage/pdfs/`:
 
-```env
-STRIPE_PRICE_ID_GUIDE="price_..."
-STRIPE_PRICE_ID_PLANNER="price_..."
-STRIPE_PRICE_ID_BOGO="price_..."
-STRIPE_PRICE_ID_COLLECTIVE_MONTHLY="price_..."
-STRIPE_PRICE_ID_COLLECTIVE_YEARLY="price_..."
+```
+storage/pdfs/
+├── The_Mindful_Musicpreneur_Guide.pdf
+├── The_Mindful_Muse_Quarterly_Planner.pdf
+└── Mindful_Musicpreneur_Freebie.pdf
 ```
 
-### 5. Set Up Stripe Webhooks
-
-1. Install Stripe CLI: https://stripe.com/docs/stripe-cli
-2. Forward webhooks to your local server:
-   ```bash
-   stripe listen --forward-to localhost:3000/api/webhooks/stripe
-   ```
-3. Copy the webhook signing secret to your `.env`:
-   ```env
-   STRIPE_WEBHOOK_SECRET="whsec_..."
-   ```
-
-For production, create a webhook endpoint in your Stripe Dashboard pointing to:
-`https://yourdomain.com/api/webhooks/stripe`
-
-### 6. Run Development Server
+### 5. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Visit http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000)
 
-**Note:** This localhost refers to the computer that's running the application, not your local machine. To access it locally or remotely, you'll need to deploy the application on your own system.
+## 🧪 Testing
 
-## 📁 Project Structure
+### Test User Accounts
 
+**Admin Account:**
+- Email: (value from ADMIN_EMAIL)
+- Password: `Admin123!`
+- Access: Full admin dashboard
+
+**Regular User:**
+- Email: `test@example.com`
+- Password: `Test123!`
+- Access: User dashboard (owns Guide + Planner)
+
+### Stripe Test Cards
+
+Use these test card numbers in checkout:
+
+- **Success**: `4242 4242 4242 4242`
+- **Decline**: `4000 0000 0000 0002`
+- **3D Secure**: `4000 0027 6000 3184`
+
+Use any future expiry date, any 3-digit CVC, and any ZIP code.
+
+### Test Workflows
+
+1. **Purchase Flow**
+   - Sign up → Browse products → Checkout → Payment → Success page → Dashboard → Download PDFs
+
+2. **BOGO Flow**
+   - Purchase BOGO → Enter recipient email → Both receive accounts → Both receive emails → Both can download
+
+3. **Collective Application**
+   - Own Guide → Apply to Collective → Admin reviews → Approve → Member accesses portal
+
+4. **Admin Flow**
+   - Sign in as admin → View dashboard → Review applications → Manage users → Update content
+
+## 🔧 Development
+
+### Database Management
+
+```bash
+# View/edit database in browser
+npx prisma studio
+
+# Create new migration
+npx prisma migrate dev --name description
+
+# Reset database (⚠️ deletes all data)
+npx prisma migrate reset
+
+# Deploy migrations (production)
+npx prisma migrate deploy
 ```
-app/
-├── api/              # API routes
-│   ├── auth/         # NextAuth routes
-│   ├── checkout/     # Checkout session creation
-│   ├── webhooks/     # Stripe webhooks
-│   └── ...
-├── products/         # Product pages (Guide, Planner, BOGO)
-├── collective/       # The Collective pages
-│   ├── apply/        # Application form
-│   └── portal/       # Member portal (gated)
-├── dashboard/        # User dashboard
-├── admin/            # Admin dashboard
-├── auth/             # Auth pages (signin, signup)
-├── freebie/          # Freebie opt-in
-└── page.tsx          # Homepage
 
-components/
-├── layout/           # Header, Footer
-├── ui/               # UI components (Button, Card, etc.)
-└── forms/            # Form components
+### Useful Commands
 
-lib/
-├── prisma.ts         # Prisma client
-├── auth-options.ts   # NextAuth configuration
-├── stripe.ts         # Stripe utilities
-├── email.ts          # Email templates and utilities
-├── products.ts       # Product definitions
-└── utils.ts          # General utilities
+```bash
+# Development
+npm run dev
 
-prisma/
-├── schema.prisma     # Database schema
-└── seed.ts           # Seed script
+# Build for production
+npm run build
 
-public/
-├── *.png             # Brand images
-└── *.txt             # Placeholder PDFs (replace with real PDFs)
+# Start production server
+npm start
+
+# Type checking
+npx tsc --noEmit
+
+# Linting
+npm run lint
 ```
 
-## 🎨 Brand Design
-
-### Colors
-- **Plum:** `#4A1942`
-- **Teal:** `#008B8B`
-- **Coral:** `#FF6F61`
-- **Cream:** `#F5F5DC`
-- **Charcoal:** `#333333`
-- **Red:** `#ff3131`
-- **Blue:** `#f371ff`
-- **Tan:** `#c69434`
-- **Green:** `#697b2f`
-- **Purple:** `#bc13fe`
-- **Yellow:** `#dfff00`
-- **Turquoise:** `#50dfc4`
-
-### Fonts
-- **Headlines:** Playfair Display
-- **Body:** Poppins
-- **Accent:** Raleway
-
-Use via Tailwind: `font-playfair`, `font-poppins`, `font-raleway`
-
-### Brand Voice
-Sophisticated, cheeky, genuine, motivational - "Stevie Nicks meets Brené Brown"
-
-## 🔑 Key Features
-
-### 1. E-Commerce
-- Browse and purchase digital products
-- Stripe checkout integration
-- Secure payment processing
-- Instant product delivery
-
-### 2. BOGO Gift System
-- Buyer enters recipient's name and email at checkout
-- System creates accounts for both buyer and recipient
-- Sends personalized emails to each:
-  - Buyer: "Thank you for your purchase and gift!"
-  - Recipient: "You've received a gift from [Buyer Name]!"
-- Both receive instant PDF access
-- Both eligible to apply for The Collective
-
-### 3. PDF Delivery
-- Secure, authenticated downloads
-- Unique links tied to user purchases
-- Download tracking
-- **Current:** Placeholder text files in `/public/`
-- **TODO:** Replace with actual PDFs:
-  - `guide.pdf` - The Mindful Musicpreneur Guide
-  - `planner.pdf` - The Mindful Muse Quarterly Planner
-  - `freebie.pdf` - Free resource
-
-### 4. The Collective
-- **Application Process:**
-  1. User must own the Guide to apply
-  2. Fill out application form (5-7 questions)
-  3. Admin reviews in admin dashboard
-  4. Admin approves or denies with optional message
-  5. Approved members get access to gated portal
-
-- **Member Portal:** (Gated - requires approval)
-  - Zoom link for live sessions
-  - Welcome message
-  - Resources
-  - Substack link
-  - Upcoming events
-
-- **Admin Controls:**
-  - Review applications
-  - Approve/deny with messages
-  - Manually grant/revoke portal access
-  - Manage portal content
-
-### 5. Email System
-Automated emails for:
-- Guide purchase (buyer)
-- Planner purchase
-- BOGO purchase (buyer)
-- BOGO gift (recipient)
-- Freebie delivery
-- Collective application received
-- Collective application approved
-- Collective application denied
-- All emails include unsubscribe links
-
-### 6. Admin Dashboard
-- View/manage all orders
-- View/manage all users
-- Review Collective applications
-- Approve/deny applications
-- Manage member portal access
-- Manage portal content (Zoom link, messages, resources)
-- Email list management with export
-- Unsubscribe management
-- Basic analytics
-
-### 7. User Dashboard
-- View purchase history
-- Download PDFs
-- Manage profile
-- Apply for The Collective
-- Access member portal (if approved)
-
-## 🔒 Security Notes
-
-1. **Change Default Admin Password:** The seeded admin account uses `admin123` - change this immediately in production!
-2. **Environment Variables:** Never commit `.env` file to version control
-3. **Stripe Keys:** Use test keys for development, live keys for production
-4. **PDF Access:** All PDF downloads require authentication
-5. **Admin Access:** Implement proper admin role checking
-
-## 🚀 Deployment
+## 📦 Deployment
 
 ### Vercel (Recommended)
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy!
 
-### Other Platforms
-- Ensure PostgreSQL database is accessible
-- Set all environment variables
-- Run `npm run build`
-- Start with `npm start`
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin <your-repo-url>
+   git push -u origin main
+   ```
 
-## 📧 Email Configuration
+2. **Deploy to Vercel**
+   - Import project at [vercel.com/new](https://vercel.com/new)
+   - Add all environment variables
+   - Deploy!
 
-### Using Resend (Recommended)
-1. Sign up at [resend.com](https://resend.com)
-2. Get API key
-3. Verify your domain
-4. Update `FROM_EMAIL` in `lib/email.ts`
+3. **Set up production database**
+   - Create PostgreSQL database (recommend [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) or [Neon](https://neon.tech))
+   - Update `DATABASE_URL` in Vercel
+   - Run migrations: `npx prisma migrate deploy`
+   - Seed: `npm run prisma:seed`
 
-### Using SendGrid or Other
-Replace Resend with your preferred email service in `lib/email.ts`
+4. **Configure Stripe Webhook**
+   - Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+   - Add endpoint: `https://yourdomain.com/api/webhooks/stripe`
+   - Select events:
+     - `checkout.session.completed`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+   - Copy signing secret to `STRIPE_WEBHOOK_SECRET`
 
-## 🔄 Stripe Webhook Events
+5. **Update Environment Variables**
+   - Set `NEXTAUTH_URL` to your domain
+   - Set `NEXT_PUBLIC_APP_URL` to your domain
+   - Switch Stripe keys to production mode
 
-The app listens for these Stripe events:
-- `checkout.session.completed` - Order completion
-- `customer.subscription.created` - Collective membership start
-- `customer.subscription.deleted` - Collective membership cancellation
-- `customer.subscription.updated` - Collective membership changes
+### Alternative Hosting
 
-Webhook handler: `/app/api/webhooks/stripe/route.ts`
+For other platforms (Railway, Render, AWS, etc.):
 
-## 📝 TODO / Next Steps
+1. Build the application: `npm run build`
+2. Set all environment variables
+3. Run migrations: `npx prisma migrate deploy`
+4. Start: `npm start`
 
-### High Priority
-1. **Replace placeholder PDFs** with actual PDF files
-2. **Configure Stripe products** and add Price IDs to `.env`
-3. **Set up Resend** and verify sending domain
-4. **Test BOGO flow** end-to-end
-5. **Test Collective application** and approval workflow
-6. **Change admin password**
+## 🎨 Customization
 
-### Additional Pages to Build
-- [ ] Product detail pages with full copy
-- [ ] The Collective full page with detailed info
-- [ ] Freebie opt-in page
-- [ ] Checkout pages with BOGO recipient fields
-- [ ] Thank you pages
-- [ ] Terms & Privacy pages
-- [ ] Complete user dashboard
-- [ ] Complete admin dashboard
-- [ ] API routes for all features
+### Brand Colors
 
-### Features to Implement
-- [ ] Shopping cart (currently direct checkout)
-- [ ] Payment history in dashboard
-- [ ] Email list export (CSV)
-- [ ] Analytics dashboard
-- [ ] Content management for portal
-- [ ] PDF upload interface for admin
-- [ ] Member directory (optional)
+Edit `/tailwind.config.ts`:
 
-### Testing Needed
-- [ ] End-to-end purchase flow
-- [ ] BOGO dual account creation
-- [ ] Email delivery for all scenarios
-- [ ] Collective application workflow
-- [ ] Member portal access control
-- [ ] PDF download security
-- [ ] Stripe webhook handling
-
-## 🆘 Troubleshooting
-
-### Database Issues
-```bash
-# Reset database
-npx prisma db push --force-reset
-npx prisma generate
-npx tsx prisma/seed.ts
+```typescript
+colors: {
+  brand: {
+    plum: '#4A1942',
+    teal: '#008B8B',
+    coral: '#FF6F61',
+    // ... add more
+  },
+}
 ```
 
-### Prisma Client Issues
+### Email Templates
+
+Edit `/lib/email.ts` to customize:
+- Email subject lines
+- HTML content
+- Styling
+
+### Product Information
+
+Edit `/lib/products.ts` to update:
+- Product names and descriptions
+- Pricing
+- Features included
+- Images
+
+### Portal Content
+
+Manage via admin dashboard or database:
+- Zoom meeting URLs
+- Welcome messages
+- Resource links
+
+## 📝 Key Features
+
+### User Features
+- ✅ Account creation and authentication
+- ✅ Product browsing and purchasing
+- ✅ Secure Stripe checkout
+- ✅ PDF downloads from dashboard
+- ✅ BOGO gifting system
+- ✅ Collective application process
+- ✅ Member-only portal access
+- ✅ Email notifications
+- ✅ Unsubscribe management
+
+### Admin Features
+- ✅ Dashboard with statistics
+- ✅ Order management
+- ✅ User management
+- ✅ Application review system
+- ✅ Content management
+- ✅ Email list export
+- ⏳ Advanced analytics (coming soon)
+- ⏳ Bulk operations (coming soon)
+
+## 🔐 Security
+
+- Passwords hashed with bcrypt
+- Session-based authentication via NextAuth
+- API routes protected with authentication checks
+- Admin routes restricted to authorized emails
+- Stripe webhook signature verification
+- SQL injection protection via Prisma
+- XSS protection via React/Next.js
+
+## 📊 Database Schema
+
+Key models:
+- **User**: Account information, access levels
+- **Product**: Digital products and pricing
+- **Order**: Purchase records and status
+- **CollectiveApplication**: Membership applications
+- **PortalContent**: Dynamic portal configuration
+- **EmailSubscriber**: Marketing email list
+- **PDFDownload**: Download tracking
+
+View full schema in `/prisma/schema.prisma`
+
+## 🐛 Troubleshooting
+
+### Database Connection Issues
 ```bash
-npx prisma generate
+# Test connection
+npx prisma db pull
+
+# Reset if needed
+npx prisma migrate reset
 ```
 
-### Build Errors
-```bash
-# Clear Next.js cache
-rm -rf .next
-npm run build
-```
+### Stripe Webhook Not Working
+- Verify webhook secret matches Stripe dashboard
+- Check webhook endpoint is accessible (use ngrok for local testing)
+- View webhook logs in Stripe dashboard
+
+### Emails Not Sending
+- Verify RESEND_API_KEY is correct
+- Check Resend dashboard for delivery logs
+- Ensure "from" email is verified in Resend
+
+### Admin Access Issues
+- Verify ADMIN_EMAIL matches your user email exactly
+- Check isAdmin() function in `/lib/admin.ts`
 
 ## 📞 Support
 
-For questions about:
-- **The Application:** Check this README
-- **Stripe:** [Stripe Docs](https://stripe.com/docs)
-- **Next.js:** [Next.js Docs](https://nextjs.org/docs)
-- **Prisma:** [Prisma Docs](https://www.prisma.io/docs)
+- **Issues**: Open an issue in the GitHub repository
+- **Email**: hello@themindfulmusicpreneur.com
+- **Documentation**: See `/FINAL_BUILD_STATUS.md` for detailed status
 
 ## 📄 License
 
 Copyright © 2026 The Mindful Musicpreneur®. All rights reserved.
 
+## 🙏 Acknowledgments
+
+- Built with Next.js, Prisma, Stripe, and Resend
+- UI components from shadcn/ui
+- Icons from Lucide React
+
 ---
 
-Built with ♥ for female+ musicians everywhere.
+**Built with ♥ for female+ musicians everywhere.**

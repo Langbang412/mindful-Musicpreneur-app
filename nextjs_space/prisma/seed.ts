@@ -4,114 +4,222 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Seeding database...')
+  console.log('Starting database seed...')
 
-  // Create products
-  const products = [
-    {
+  // Clean existing data (optional - comment out if you want to keep existing data)
+  await prisma.pDFDownload.deleteMany()
+  await prisma.orderItem.deleteMany()
+  await prisma.order.deleteMany()
+  await prisma.collectiveApplication.deleteMany()
+  await prisma.emailSubscriber.deleteMany()
+  await prisma.product.deleteMany()
+  await prisma.user.deleteMany()
+  await prisma.portalContent.deleteMany()
+  await prisma.siteSettings.deleteMany()
+
+  // Create Products
+  console.log('Creating products...')
+  
+  const guide = await prisma.product.create({
+    data: {
       name: 'The Mindful Musicpreneur Guide',
-      slug: 'mindful-musicpreneur-guide',
+      slug: 'guide',
       description: '200+ page career-shadow field guide for female musicians',
-      price: 60.00,
+      price: 60,
       type: 'guide',
       active: true,
     },
-    {
+  })
+
+  const planner = await prisma.product.create({
+    data: {
       name: 'The Mindful Muse Quarterly Planner',
-      slug: 'mindful-muse-quarterly-planner',
+      slug: 'planner',
       description: 'Quarterly planner designed for musicians lives & schedules',
-      price: 15.00,
+      price: 15,
       type: 'planner',
       active: true,
     },
-    {
+  })
+
+  const bogo = await prisma.product.create({
+    data: {
       name: 'BOGO - Buy One, Gift One Guide',
-      slug: 'bogo-buy-one-gift-one',
+      slug: 'bogo',
       description: 'Get the Guide for yourself and gift one to another artist',
-      price: 100.00,
+      price: 100,
       type: 'bogo',
       active: true,
     },
-    {
+  })
+
+  const freebie = await prisma.product.create({
+    data: {
       name: 'Free Resource',
       slug: 'freebie',
       description: 'Get started with our free resource for female musicians',
-      price: 0.00,
+      price: 0,
       type: 'freebie',
       active: true,
     },
-    {
+  })
+
+  const collectiveMonthly = await prisma.product.create({
+    data: {
       name: 'The Collective - Monthly',
-      slug: 'the-collective-monthly',
-      description: 'Monthly membership to The Collective',
-      price: 47.00,
+      slug: 'collective-monthly',
+      description: 'Monthly membership to The Collective community',
+      price: 47,
       type: 'collective_monthly',
       active: true,
     },
-    {
+  })
+
+  const collectiveYearly = await prisma.product.create({
+    data: {
       name: 'The Collective - Yearly',
-      slug: 'the-collective-yearly',
-      description: 'Yearly membership to The Collective (save $67)',
-      price: 497.00,
+      slug: 'collective-yearly',
+      description: 'Annual membership to The Collective community',
+      price: 497,
       type: 'collective_yearly',
       active: true,
     },
-  ]
+  })
 
-  for (const product of products) {
-    await prisma.product.upsert({
-      where: { slug: product.slug },
-      update: product,
-      create: product,
-    })
-    console.log(`✓ Created/updated product: ${product.name}`)
-  }
+  console.log('Products created ✓')
 
-  // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 10)
-  const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@themindfulmusicpreneur.com' },
-    update: {},
-    create: {
-      email: 'admin@themindfulmusicpreneur.com',
+  // Create Admin User
+  console.log('Creating admin user...')
+  const adminPassword = await bcrypt.hash('Admin123!', 10)
+  
+  const adminUser = await prisma.user.create({
+    data: {
+      email: process.env.ADMIN_EMAIL || 'admin@themindfulmusicpreneur.com',
       firstName: 'Admin',
       lastName: 'User',
-      password: hashedPassword,
+      password: adminPassword,
+      ownsGuide: true,
+      ownsPlanner: true,
+      isCollectiveMember: true,
     },
   })
-  console.log(`✓ Created admin user: ${adminUser.email}`)
 
-  // Create portal content defaults
-  const portalContents = [
-    {
+  console.log('Admin user created ✓')
+  console.log(`Admin email: ${adminUser.email}`)
+  console.log('Admin password: Admin123!')
+
+  // Create Test User
+  console.log('Creating test user...')
+  const testPassword = await bcrypt.hash('Test123!', 10)
+  
+  const testUser = await prisma.user.create({
+    data: {
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      password: testPassword,
+      ownsGuide: true,
+      ownsPlanner: true,
+    },
+  })
+
+  console.log('Test user created ✓')
+  console.log('Test email: test@example.com')
+  console.log('Test password: Test123!')
+
+  // Create Portal Content
+  console.log('Creating portal content...')
+  
+  await prisma.portalContent.create({
+    data: {
       key: 'zoom_url',
       value: 'https://zoom.us/j/your-meeting-id',
     },
-    {
+  })
+
+  await prisma.portalContent.create({
+    data: {
       key: 'welcome_message',
-      value: 'Welcome to The Collective! This is your green room - a space for real talk, radical responsibility, and supporting each other\'s wins.',
+      value: "Welcome to The Collective! This is your space for real talk, radical responsibility, and supporting each other's wins. We're thrilled to have your energy in the room.",
     },
-    {
+  })
+
+  await prisma.portalContent.create({
+    data: {
       key: 'substack_url',
       value: 'https://themindfulmusicpreneur.substack.com',
     },
-  ]
+  })
 
-  for (const content of portalContents) {
-    await prisma.portalContent.upsert({
-      where: { key: content.key },
-      update: { value: content.value },
-      create: content,
-    })
-    console.log(`✓ Created/updated portal content: ${content.key}`)
-  }
+  console.log('Portal content created ✓')
 
-  console.log('✅ Seed completed!')
+  // Create Sample Test Order
+  console.log('Creating sample order...')
+  
+  const sampleOrder = await prisma.order.create({
+    data: {
+      userId: testUser.id,
+      status: 'completed',
+      totalAmount: 60,
+      currency: 'usd',
+      completedAt: new Date(),
+      orderItems: {
+        create: {
+          productId: guide.id,
+          quantity: 1,
+          price: 60,
+        },
+      },
+    },
+  })
+
+  console.log('Sample order created ✓')
+
+  // Create Sample Email Subscribers
+  console.log('Creating email subscribers...')
+  
+  await prisma.emailSubscriber.createMany({
+    data: [
+      {
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        source: 'signup',
+        subscribed: true,
+      },
+      {
+        email: testUser.email,
+        firstName: testUser.firstName,
+        source: 'signup',
+        subscribed: true,
+      },
+    ],
+  })
+
+  console.log('Email subscribers created ✓')
+
+  console.log('')
+  console.log('✅ Database seed completed successfully!')
+  console.log('')
+  console.log('=== Test Accounts ===')
+  console.log('Admin User:')
+  console.log(`  Email: ${adminUser.email}`)
+  console.log('  Password: Admin123!')
+  console.log('')
+  console.log('Test User:')
+  console.log('  Email: test@example.com')
+  console.log('  Password: Test123!')
+  console.log('')
+  console.log('=== Next Steps ===')
+  console.log('1. Start the development server: npm run dev')
+  console.log('2. Sign in with admin credentials')
+  console.log('3. Test the checkout flow with Stripe test cards')
+  console.log('4. Upload PDF files to /storage/pdfs/ directory')
+  console.log('')
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error('Error seeding database:', e)
     process.exit(1)
   })
   .finally(async () => {
