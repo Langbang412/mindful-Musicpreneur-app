@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
     // Get or create Stripe product and price
     let priceId: string
    const price = productId === 'collective' && product.monthlyPrice !== undefined ? product.monthlyPrice : product.price;
-
     // For this implementation, we'll create prices on-the-fly
     // In production, you'd want to pre-create these in Stripe Dashboard
     const stripeProduct = await stripe.products.create({
