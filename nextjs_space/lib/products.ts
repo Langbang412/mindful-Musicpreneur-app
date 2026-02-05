@@ -52,11 +52,16 @@ export const PRODUCTS = {
     price: 0,
     description: 'Get started with our free resource for female musicians',
     image: '/AppArt.png',
+    includes: [
+      'Free downloadable resource',
+      'Email newsletter subscription',
+    ],
   },
   collective: {
     id: 'collective',
     name: 'The Collective',
     slug: 'the-collective',
+    price: 47,
     monthlyPrice: 47,
     yearlyPrice: 497,
     description: 'The Personal Power Happy Hour™ For Female Musicians',

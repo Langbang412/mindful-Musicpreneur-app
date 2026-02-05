@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle, Download, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const sessionId = searchParams?.get('session_id')
   const [loading, setLoading] = useState(true)
@@ -18,6 +18,8 @@ export default function CheckoutSuccessPage() {
   useEffect(() => {
     if (sessionId) {
       fetchOrderData()
+    } else {
+      setLoading(false)
     }
   }, [sessionId])
 
@@ -114,5 +116,21 @@ export default function CheckoutSuccessPage() {
       
       <Footer />
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
+    </div>
+  )
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <CheckoutSuccessContent />
+    </Suspense>
   )
 }

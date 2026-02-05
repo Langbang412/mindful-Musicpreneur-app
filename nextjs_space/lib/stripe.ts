@@ -1,13 +1,30 @@
 import Stripe from 'stripe'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not defined')
+// Lazy initialization to avoid build-time errors
+let _stripe: Stripe | null = null
+
+export const getStripe = () => {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY
+    if (!key) {
+      throw new Error('STRIPE_SECRET_KEY is not defined')
+    }
+    _stripe = new Stripe(key, {
+      apiVersion: '2025-01-27.acacia' as any,
+      typescript: true,
+    })
+  }
+  return _stripe
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
-  typescript: true,
-})
+// For backward compatibility - but this will fail at build time
+export const stripe = {
+  get checkout() { return getStripe().checkout },
+  get products() { return getStripe().products },
+  get prices() { return getStripe().prices },
+  get webhooks() { return getStripe().webhooks },
+  get customers() { return getStripe().customers },
+}
 
 // Product type to Stripe Price ID mapping
 export const STRIPE_PRICE_IDS = {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Header } from '@/components/layout/header'
@@ -14,7 +14,7 @@ import { Loader2, ShoppingCart, Lock } from 'lucide-react'
 import { PRODUCTS } from '@/lib/products'
 import Image from 'next/image'
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -63,7 +63,7 @@ export default function CheckoutPage() {
   }
 
   const isBogo = productId === 'bogo'
-  const price = productId === 'collective' ? product.monthlyPrice : product.price
+  const price = product.price
 
   const handleCheckout = async () => {
     setError('')
@@ -151,7 +151,7 @@ export default function CheckoutPage() {
                     <div className="mb-6">
                       <h4 className="font-semibold mb-2">What's Included:</h4>
                       <ul className="space-y-1">
-                        {product.includes.map((item, index) => (
+                        {product.includes.map((item: string, index: number) => (
                           <li key={index} className="text-sm text-gray-600 flex items-start">
                             <span className="text-brand-purple mr-2">✓</span>
                             <span>{item}</span>
@@ -264,5 +264,21 @@ export default function CheckoutPage() {
       
       <Footer />
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-purple" />
+    </div>
+  )
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <CheckoutContent />
+    </Suspense>
   )
 }
